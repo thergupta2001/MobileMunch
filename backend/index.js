@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const dotenv = require('dotenv').config()
 const User = require('./models/userSchema.js')
+// const cookieParser = require('cookie-parser')
 
 const app = express()
 
@@ -18,6 +19,7 @@ mongoose.connect(process.env.MONGO_URL)
      })
 
 app.use(bodyParser.json())
+// app.use(cookieParser())
 app.use(cors())
 
 app.post('/register', async (req, res) => {
@@ -54,8 +56,9 @@ app.post('/login', async (req, res) => {
                return res.status(401).json({ error: 'Invalid credentials' })
           }
 
-          const token = jwt.sign({ userId: user._id }, process.env.SECRET_KEY, { expiresIn: '1d' })
-          res.status(200).json({ message: 'Login successful token: ' + token })
+          const token = jwt.sign({ userId: user._id, username: user.username, email: user.email }, process.env.SECRET_KEY, { expiresIn: '1d' })
+               // .then(() => res.cookie('token', token))
+          res.status(200).json({ message: token })
      } catch (err) {
           res.status(500).json({ error: 'Error logging in' + err })
      }

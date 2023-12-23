@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { isAuthenticated, setAuthToken } from "../utils/auth.js";
 
 const Login = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -14,6 +15,14 @@ const Login = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSuccessfulLogin = (token) => {
+    setAuthToken(token);
+    isAuthenticated();
+    navigate("/home");
+    console.log("User logged in successfully");
+    window.location.reload()
   };
 
   const handleSubmit = async (e) => {
@@ -29,8 +38,9 @@ const Login = () => {
         return console.log("Invalid credentials");
       }
 
-      console.log("User logged in successfully ", response.data);
-      navigate('/home')
+      const token = response.data.message;
+
+      handleSuccessfulLogin(token);
     } catch (err) {
       if (err.response) {
         setError(err.response.data.error);
